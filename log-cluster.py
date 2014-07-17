@@ -6,6 +6,8 @@ logTypeInfo = "Log Types"
 logLinesInfo = "Log Lines"
 
 import os
+import numpy as np
+from scipy.cluster.vq import kmeans, whiten, kmeans2
 
 ##Analysis methods
 
@@ -123,6 +125,20 @@ def convert_log_lines(words, log):
 	print("Done converting log lines into vectors..\n")
 	return vectorLines
 
+def clustering(vecs):
+	print("Clustering the logs..")
+	print("Number of lines: %d" % len(vecs))
+	print("Number of features: %d" % len(vecs[0]))
+	
+	matrix = np.asarray(vecs) #Each row represents a different line from the log file; each column represents a different feature
+	whitematrix = whiten(matrix)
+	centroids = [1, 4, 10, 20]
+	for centroid in centroids:
+		code, dist = kmeans(whitematrix, centroid)
+		print("%d --> %f" % (centroid, dist))
+	
+	print("Done clustering the logs..\n")
+
 ##Utilities
 
 def noNumbers(string):
@@ -157,6 +173,7 @@ def mainAnalysis():
 	corpus = build_corpus(sanitizedLog)
 	analyze_corpus(corpus, sanitizedLog)
 	vectorLines = convert_log_lines(corpus, sanitizedLog)
+	clustering(vectorLines)
 	print("Exiting..")
 
 ## Main
